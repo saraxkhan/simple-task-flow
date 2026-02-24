@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Trash2, Sparkles, CheckCircle2, Circle,
-  ChevronDown, ChevronRight, ListChecks, Rocket,
+  ChevronRight, ListChecks, Rocket, Sun, Moon, Monitor,
 } from "lucide-react";
 import {
   type Category, type Priority,
@@ -24,6 +25,15 @@ export default function TodoApp() {
   const [tasks, setTasks] = useLocalStorage<Task[]>("todo-tasks-v2", []);
   const [input, setInput] = useState("");
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    const order = ["light", "dark", "system"] as const;
+    const current = order.indexOf(theme as typeof order[number]);
+    setTheme(order[(current + 1) % order.length]);
+  };
+
+  const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
   const addTask = (text: string) => {
     if (!text.trim()) return;
@@ -97,8 +107,17 @@ export default function TodoApp() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 text-center"
+          className="mb-8 flex flex-col items-center"
         >
+          <div className="w-full flex justify-end mb-2">
+            <button
+              onClick={cycleTheme}
+              className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-all"
+              title={`Theme: ${theme}`}
+            >
+              <ThemeIcon size={18} />
+            </button>
+          </div>
           <div className="inline-flex items-center gap-2.5 mb-2">
             <div className="p-2 rounded-xl bg-primary/10">
               <ListChecks size={22} className="text-primary" />
